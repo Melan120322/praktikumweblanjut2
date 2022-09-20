@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\Mahasiswa;
+use PhpParser\Node\Expr\FuncCall;
 
 class MahasiswaController extends BaseController
 {
@@ -31,5 +32,62 @@ class MahasiswaController extends BaseController
         return view('templates/header', $data)
             . view('mahasiswa/create')
             . view('templates/footer');
+    }
+
+    public function store(){
+        $mahasiswaModel = new Mahasiswa();
+        if(!$this->validate([
+            'npm' => 'required|numeric',
+            'nama' => 'required|string',
+            'alamat' => 'required'
+        ])){
+            return redirect()-> to('/create');
+        }
+        $data = [
+            //disesuaikan sama kayak yang di database, jadi harus sama 
+            'npm' => $this->request->getPost('npm'),
+            'nama' => $this->request->getPost('nama'),
+            'alamat' => $this->request->getPost('alamat'),
+        ];
+        $mahasiswaModel->save($data);
+
+        return redirect()-> to('/mahasiswa');
+    }
+    public function delete($id){
+        $mahasiswaModel = new Mahasiswa();
+        $mahasiswaModel -> delete($id);
+        return redirect()-> to('/mahasiswa');
+    }
+
+    public function edit($id){
+        $mahasiswaModel = new Mahasiswa();
+        $mahasiswa = $mahasiswaModel->find($id);
+
+        $data = [
+            'title' => 'Edit Mahasiswa'
+        ];
+
+        return view('templates/header', $data)
+            . view('mahasiswa/edit', $mahasiswa)
+            . view('templates/footer');
+    }
+    public function update($id){
+        if(!$this->validate([
+            'npm' => 'required|numeric',
+            'nama' => 'required|string',
+            'alamat' => 'required'
+        ])){
+            return redirect()-> to('/edit/'.$id);
+        }
+        $mahasiswaModel = new Mahasiswa();
+        $data = [
+            //disesuaikan sama kayak yang di database, jadi harus sama 
+            'npm' => $this->request->getVar('npm'),
+            'nama' => $this->request->getVar('nama'),
+            'alamat' => $this->request->getVar('alamat'),
+        ];
+        $mahasiswaModel->update($id, $data);
+
+        return redirect()-> to('/mahasiswa');
     }
 }
